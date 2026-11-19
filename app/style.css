@@ -1,12 +1,118 @@
-html, body { margin: 0; height: 100%; background: #f2f0f4; color: #1d1b22; font: 15px/1.4 system-ui, sans-serif; }
-.app { display: flex; gap: 32px; align-items: center; justify-content: center; height: 100%; padding: 24px; box-sizing: border-box; }
-.controls { display: flex; flex-direction: column; gap: 14px; width: 280px; }
-.controls h1 { margin: 0; font-size: 28px; }
-.controls p { margin: 0; color: #5c5866; }
-label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; }
-input[type=text] { font: inherit; padding: 8px; border: 1px solid #c9c4d1; border-radius: 6px; }
-button { font: inherit; font-weight: 700; padding: 10px; border: 0; border-radius: 6px; background: #1d1b22; color: #fff; cursor: pointer; }
-canvas { width: min(70vh, 60vw); height: min(70vh, 60vw); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2); }
-body.shot-cover .controls { display: none; }
-body.shot-cover .app { padding: 0; }
-body.shot-cover canvas { width: 100vw; height: 100vh; box-shadow: none; }
+/* Vice Cover Studio: a dark neon editor shell around a bright cover canvas. */
+:root {
+  --ink: #f5eef7;
+  --muted: #b9a8c2;
+  --panel: #1c1024;
+  --panel-2: #261631;
+  --line: #3d2a4a;
+  --pink: #ff2e88;
+  --orange: #ff7a3d;
+  --cyan: #2ee6d6;
+  --gold: #ffc93d;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: #12081a;
+  background-image: radial-gradient(900px 500px at 85% -10%, rgba(255, 46, 136, 0.28), transparent 60%),
+    radial-gradient(700px 420px at -10% 110%, rgba(46, 230, 214, 0.16), transparent 60%);
+  color: var(--ink);
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.topbar {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 22px;
+  padding: 18px 26px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark {
+  display: inline-grid; place-items: center;
+  width: 44px; height: 44px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--pink), var(--orange) 55%, var(--gold));
+  color: #fff; font-weight: 900; font-size: 22px; letter-spacing: 1px;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+  transform: skew(-6deg);
+}
+.brand-name {
+  font-size: 24px; font-weight: 900; letter-spacing: 3px;
+  background: linear-gradient(90deg, #fff, var(--gold) 60%, var(--pink));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.tagline { margin: 0; color: var(--muted); font-size: 14px; }
+
+.studio {
+  display: grid; grid-template-columns: 340px minmax(0, 1fr);
+  gap: 26px; padding: 22px 26px 30px; align-items: start;
+}
+.panel { display: flex; flex-direction: column; gap: 16px; }
+.group {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  padding: 16px; display: flex; flex-direction: column; gap: 12px;
+}
+.group h2 { margin: 0; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); }
+.hint { margin: 0; font-size: 12px; color: var(--muted); }
+label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 13px; }
+label .value { float: right; color: var(--cyan); font-weight: 700; }
+input[type=text], select {
+  font: inherit; color: var(--ink); background: var(--panel-2);
+  border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; width: 100%;
+}
+input[type=range] { width: 100%; accent-color: var(--pink); }
+input[type=file] { font: inherit; font-weight: 400; }
+
+.thumbs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.thumb {
+  border: 2px solid transparent; border-radius: 10px; padding: 0; overflow: hidden;
+  background: var(--panel-2); cursor: pointer; position: relative; aspect-ratio: 1;
+}
+.thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.thumb span {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 3px 6px;
+  background: rgba(10, 4, 16, 0.78); color: #fff; font-size: 11px; font-weight: 700; text-align: left;
+}
+.thumb[aria-pressed="true"] { border-color: var(--cyan); box-shadow: 0 0 0 2px rgba(46, 230, 214, 0.35); }
+
+.layouts { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.layout-btn {
+  border: 2px solid var(--line); background: var(--panel-2); color: var(--ink);
+  border-radius: 10px; padding: 8px 4px; cursor: pointer; font: inherit; font-size: 12px; font-weight: 700;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.layout-btn[aria-pressed="true"] { border-color: var(--pink); background: #3a1530; }
+.layout-btn svg { width: 34px; height: 26px; }
+.layout-btn rect { fill: #6b4a7d; stroke: #0e0613; stroke-width: 1.5; }
+.layout-btn[aria-pressed="true"] rect { fill: var(--pink); }
+
+.upload {
+  border: 1px dashed var(--line); border-radius: 8px; padding: 10px;
+  background: var(--panel-2); cursor: pointer;
+}
+button {
+  font: inherit; font-weight: 800; padding: 12px; border: 0; border-radius: 10px;
+  background: linear-gradient(90deg, var(--pink), var(--orange)); color: #fff; cursor: pointer;
+  letter-spacing: 0.5px;
+}
+button:hover { filter: brightness(1.1); }
+button.ghost { background: transparent; border: 1px solid var(--line); color: var(--ink); }
+#status { margin: 0; min-height: 1.2em; font-size: 13px; color: var(--cyan); }
+
+.stage { display: flex; flex-direction: column; align-items: center; gap: 12px; position: sticky; top: 16px; }
+#cover {
+  width: min(78vh, 100%); height: auto;
+  border-radius: 6px; box-shadow: 0 18px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  background: #2b1838;
+}
+.fineprint { margin: 0; font-size: 12px; color: var(--muted); text-align: center; max-width: 560px; }
+
+/* Screenshot mode: cover only, filling the viewport. */
+body.shot-cover .topbar, body.shot-cover .panel, body.shot-cover .fineprint { display: none; }
+body.shot-cover .studio { display: block; padding: 0; }
+body.shot-cover .stage { position: static; }
+body.shot-cover #cover { width: 100vw; height: 100vh; object-fit: contain; border-radius: 0; box-shadow: none; }
+
+@media (max-width: 900px) {
+  .studio { grid-template-columns: 1fr; }
+  .stage { position: static; }
+}
